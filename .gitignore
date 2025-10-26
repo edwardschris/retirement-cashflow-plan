@@ -1,1 +1,42 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg-info/
+.eggs/
+*.sqlite3
+
+# Virtual environments
 .venv/
+venv/
+ENV/
+env/
+
+# --- Streamlit ---
+# Local Streamlit secrets file
+.streamlit/secrets.toml
+
+# Streamlit static media/cache
+.streamlit/cache/
+.streamlit/media/
+.streamlit/logs/
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+
+# --- IDE Editors ---
+.vscode/
+.idea/
+
+# --- Build / Distribution ---
+dist/
+build/
+*.spec
+
+# --- Logs ---
+*.log
+logs/
