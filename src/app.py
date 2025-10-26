@@ -1,10 +1,12 @@
 import os
 import streamlit as st
-from cashflow_chart import cashflow_chart
 from classes.settingsclass import SettingsState
+from dashboard_charts import cashflow_chart, income_need_chart, pots_chart
 from investments import investments_content
 from plan import plan_content
 from settings import settings_form
+import event_handler
+from styling import style
 
 def is_debug_mode():
     return "DEBUGPY_LAUNCHER_PORT" in os.environ
@@ -18,44 +20,29 @@ else:
 settings = SettingsState.from_session()
 settings.enforce()
 
+style()
+
 st.set_page_config(
     layout="wide",
-    page_title="Cashflow planner",
+    page_title="Retirement Cashflow planner",
 )
 
-st.title("Retirement Cashflow")
-
-if settings.dob_changed_event:
-    settings.dob_changed(st.session_state["dob"])
-
-
-if settings.plan_dates_changed_event:
-    settings.plan_dates_changed(st.session_state["dob"], st.session_state["plan_start"], st.session_state["plan_end"])
-
-if settings.start_age_changed_event:
-    settings.plan_start_changed(st.session_state["start_age"])
-
-
-if settings.end_age_changed_event:
-    settings.plan_end_changed(st.session_state["end_age"])
-
-if settings.pension_changed_event:
-    settings.pension_changed(st.session_state["pension_age"], st.session_state["pension_amount"], st.session_state["pension_increase"])
-
-if settings.monthly_changed_event:
-    settings.monthly_changed(st.session_state["monthly_income"])
-    st.session_state["annual_income"] = float(settings.annual_income)
-
-if settings.annual_changed_event:
-    settings.annual_changed(st.session_state["annual_income"])
-    st.session_state["monthly_income"] = float(settings.monthly_income)
-
-if settings.inflation_rate_changed_event:
-    settings.inflation_rate_changed(st.session_state["inflation_rate"])
+st.title("Retirement Cashflow Planner")
 
 settings.enforce()
 
-cashflow_chart()
+event_handler.init_event_handlers(settings)
+
+cashflow_chart_tab, income_chart_tab, pots_chart_tab = st.tabs(["Cashflow", "Income Needed", "Pots"])
+
+with cashflow_chart_tab:
+    cashflow_chart()
+
+with income_chart_tab:
+    income_need_chart()
+
+with pots_chart_tab:
+    pots_chart()
 
 settings_tab, investment_tab, cashflow_tab = st.tabs(["Settings", "Investments", "Cashflow Plan"])
 

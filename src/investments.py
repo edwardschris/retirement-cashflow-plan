@@ -1,9 +1,27 @@
+from decimal import Decimal
 import streamlit as st
 from classes.settingsclass import SettingsState
 from decimal_input import decimal_input
 
 def investments_content():
     settings = SettingsState.from_session()
+    settings.enforce()
+    st.session_state.setdefault("rental1_value",  settings.rental1_value)
+    st.session_state.setdefault("rental1_start",  settings.rental1_start)
+    st.session_state.setdefault("rental1_end",  settings.rental1_end)
+    st.session_state.setdefault("rental2_value",  settings.rental2_value)
+    st.session_state.setdefault("rental2_start",  settings.rental2_start)
+    st.session_state.setdefault("rental2_end",  settings.rental2_end)
+    st.session_state.setdefault("rent_increase",  settings.rent_increase)
+
+    st.session_state.setdefault("cash_value",  settings.cash_value)
+    st.session_state.setdefault("cash_interest",  settings.cash_interest)
+    st.session_state.setdefault("isa_value",  settings.isa_value)
+    st.session_state.setdefault("isa_growth",  settings.isa_growth)
+    st.session_state.setdefault("gia_value",  settings.gia_value)
+    st.session_state.setdefault("gia_growth",  settings.gia_growth)
+    st.session_state.setdefault("sipp_value",  settings.sipp_value)
+    st.session_state.setdefault("sipp_growth",  settings.sipp_growth)
 
     st.subheader("Investments")
 
@@ -13,29 +31,29 @@ def investments_content():
         value1, start1, end1 = st.columns([2,1,1])
 
         with value1:
-            rental1_value = decimal_input(
+            decimal_input(
                 "Rental per month",
-                min_value=0.0,
-                value= float(settings.rental1_value),
+                min_value=Decimal("0.0"),
                 key="rental1_value",
                 step= 1,
+                on_change=settings.rental_on_change
             )
 
         with start1:
-            rental1_start = st.number_input(
+             st.number_input(
                 "Rent Start",
                 min_value=settings.start_min,
                 max_value=settings.end_age,
-                value=settings.rental1_start,
                 key="rental1_start",
+                on_change=settings.rental_on_change
             )
         with end1:
-            rental1_end = st.number_input(
+             st.number_input(
                 "Rent End",
                 min_value=settings.start_min,
                 max_value=settings.end_age,
-                value=settings.rental1_end,
                 key="rental1_end",
+                on_change=settings.rental_on_change
             )
 
 
@@ -43,122 +61,102 @@ def investments_content():
         value2, start2, end2 = st.columns([2,1,1])
 
         with value2:
-            rental2_value = decimal_input(
+            decimal_input(
                 "Rental per month",
-                min_value=0.0,
-                value= float(settings.rental2_value),
+                min_value=Decimal("0.0"),
                 key="rental2_value",
                 step= 1,
+                on_change=settings.rental_on_change
             )
 
 
         with start2:
-            rental2_start = st.number_input(
+            st.number_input(
                 "Rent Start",
-                value=settings.rental2_start,
+                min_value=settings.start_min,
+                max_value=settings.end_age,
                 key="rental2_start",
+                on_change=settings.rental_on_change
             )
         with end2:
-            rental2_end = st.number_input(
+            st.number_input(
                 "Rent End",
-                value=settings.rental2_end,
+                min_value=settings.start_min,
+                max_value=settings.end_age,
                 key="rental2_end",
+                on_change=settings.rental_on_change
             )
 
-        rent_increase = decimal_input(
+        decimal_input(
             "Annual Rent Increase (%)",
-            value= float(settings.rent_increase),
             key="rent_increase",
-            step= 0.05
+            step= 0.05,
+            on_change=settings.rental_on_change
         )
-
-        settings.rental1_value = rental1_value
-        settings.rental1_start = rental1_start
-        settings.rental1_end = rental1_end
-
-        settings.rental2_value = rental2_value
-        settings.rental2_start = rental2_start
-        settings.rental2_end = rental2_end
-
-        settings.rent_increase = rent_increase
-
 
     with isa_col:
 
-        cash_value = decimal_input(
+        decimal_input(
                 "Cash Value",
                 min_value=0.0,
-                value= float(settings.cash_value),
                 key="cash_value",
                 step= 1_000,
+                on_change=settings.cash_on_change
             )
 
-        cash_interest = decimal_input(
+        decimal_input(
             "Cash Investment Growth (%)",
-            value= float(settings.cash_interest),
             key="cash_interest",
-            step= 0.05
+            step= 0.05,
+            on_change=settings.cash_on_change
         )
 
-        isa_value = decimal_input(
+        decimal_input(
                 "ISA Value",
                 min_value=0.0,
-                value= float(settings.isa_value),
                 key="isa_value",
                 step= 1_000,
+                on_change=settings.isa_on_change
             )
 
-        isa_growth = decimal_input(
+        decimal_input(
             "ISA Investment Growth (%)",
-            value= float(settings.isa_growth),
             key="isa_growth",
-            step= 0.05
+            step= 0.05,
+            on_change=settings.isa_on_change
         )
-
-        settings.cash_value = cash_value
-        settings.cash_interest = cash_interest
-
-        settings.isa_value = isa_value
-        settings.isa_growth = isa_growth
 
     with other_col:
 
-        gia_value = decimal_input(
-                "GIA Value",
-                min_value=0.0,
-                value= float(settings.gia_value),
-                key="gia_value",
-                step= 1_000,
-            )
+        decimal_input(
+            "GIA Value",
+            min_value=0.0,
+            key="gia_value",
+            step= 1_000,
+            on_change=settings.gia_on_change
+        )
 
-        gia_growth = decimal_input(
+        decimal_input(
             "GIA Investment Growth (%)",
-            value= float(settings.gia_growth),
             key="gia_growth",
-            step= 0.05
+            step= 0.05,
+            on_change=settings.gia_on_change
         )
 
-        sipp_value = decimal_input(
-                "SIPP Value",
-                min_value=0.0,
-                value= float(settings.sipp_value),
-                key="sipp_value",
-                step= 1_000,
-            )
+        decimal_input(
+            "SIPP Value",
+            min_value=0.0,
+            key="sipp_value",
+            step= 1_000,
+            on_change=settings.sipp_on_change
+        )
 
-        sipp_growth = decimal_input(
+        decimal_input(
             "SIPP Investment Growth (%)",
-            value= float(settings.sipp_growth),
             key="sipp_growth",
-            step= 0.05
+            step= 0.05,
+            on_change=settings.sipp_on_change
         )
-
-        settings.sipp_value = sipp_value
-        settings.sipp_growth = sipp_growth
-
-        settings.gia_value = gia_value
-        settings.gia_growth = gia_growth
-
 
 
     return None

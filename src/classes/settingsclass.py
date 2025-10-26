@@ -48,11 +48,16 @@ class SettingsState:
 
     pension_changed_event: bool = False
     inflation_rate_changed_event: bool = False
+    monthly_changed_event: bool = False
+    annual_changed_event: bool = False
+    rental_changed_event: bool = False
+    cash_changed_event: bool = False
+    isa_changed_event: bool = False
+    gia_changed_event: bool = False
+    sipp_changed_event: bool = False
 
     monthly_income: Decimal | None = field(default_factory=lambda: Decimal("5_000"))
-    monthly_changed_event: bool = False
     annual_income: Decimal | None = field(default_factory=lambda: Decimal("60_000"))
-    annual_changed_event: bool = False
 
     rental1_value: Decimal | None = field(default_factory=lambda: Decimal("421"))
     rental1_start: int | None = 58
@@ -131,7 +136,7 @@ class SettingsState:
         self.start_age_changed_event = True
         self.to_session()
 
-    def plan_start_changed(self, new_age: int):
+    def start_age_changed(self, new_age: int):
         new_age = int(new_age)
         self.start_age = new_age
         self.plan_start = _safe_add_years(self.dob, int(new_age))
@@ -143,7 +148,7 @@ class SettingsState:
         self.end_age_changed_event = True
         self.to_session()
 
-    def plan_end_changed(self, new_age):
+    def end_age_changed(self, new_age):
         self.end_age = int(new_age)
         self.plan_end = _safe_add_years(self.dob, int(new_age))
         st.session_state["plan_end"] = self.plan_end
@@ -169,6 +174,7 @@ class SettingsState:
 
         self.monthly_income = m
         self.annual_income = dp2(m * 12)
+        st.session_state["annual_income"] = self.annual_income
         self.monthly_changed_event = False
         self.to_session()
 
@@ -180,6 +186,7 @@ class SettingsState:
         a = dp2(new_annual)
         self.annual_income = a
         self.monthly_income = dp2(a / 12)
+        st.session_state["monthly_income"] = self.monthly_income
         self.annual_changed_event = False
         self.to_session()
     
@@ -190,6 +197,61 @@ class SettingsState:
     def inflation_rate_changed(self, new_rate):
         self.inflation_rate = dp2(new_rate)
         self.inflation_rate_changed_event = False
+        self.to_session()
+
+    def rental_on_change(self):
+        self.rental_changed_event = True
+        self.to_session()
+
+    def rental_changed(self, new_value1, new_start1, new_end1, new_value2, new_start2, new_end2, new_increase):
+        self.rental1_value = dp2(new_value1)
+        self.rental1_start = int(new_start1)
+        self.rental1_end = int(new_end1)
+        self.rental2_value = dp2(new_value2)
+        self.rental2_start = int(new_start2)
+        self.rental2_end = int(new_end2)
+        self.rent_increase = dp2(new_increase)
+        self.rental_changed_event = False
+        self.to_session()
+
+    def cash_on_change(self):
+        self.cash_changed_event = True
+        self.to_session()
+
+    def cash_changed(self, new_value, new_interest):
+        self.cash_value = dp2(new_value)
+        self.cash_interest = dp2(new_interest)
+        self.cash_changed_event = False
+        self.to_session()
+
+    def isa_on_change(self):
+        self.isa_changed_event = True
+        self.to_session()
+
+    def isa_changed(self, new_value, new_growth):
+        self.isa_value = dp2(new_value)
+        self.isa_growth = dp2(new_growth)
+        self.isa_changed_event = False
+        self.to_session()
+
+    def gia_on_change(self):
+        self.gia_changed_event = True
+        self.to_session()
+
+    def gia_changed(self, new_value, new_growth):
+        self.gia_value = dp2(new_value)
+        self.gia_growth = dp2(new_growth)
+        self.gia_changed_event = False
+        self.to_session()
+
+    def sipp_on_change(self):
+        self.sipp_changed_event = True
+        self.to_session()
+
+    def sipp_changed(self, new_value, new_growth):
+        self.sipp_value = dp2(new_value)
+        self.sipp_growth = dp2(new_growth)
+        self.sipp_changed_event = False
         self.to_session()
 
     def normalized_start(self) -> int:
@@ -281,7 +343,7 @@ class SettingsState:
         # Output series
         income_needed, pension_income = [], []
         rental_income, rental1_income, rental2_income = [], [], []
-        short = []
+        short, deficit = [], []
 
         sipp_start, sipp_take, sipp_growth, sipp_end = [], [], [], []
         gia_start, gia_take, gia_growth, gia_end = [], [], [], []
@@ -298,6 +360,7 @@ class SettingsState:
         current_isa = dp2(self.isa_value)
         current_sipp = dp2(self.sipp_value)
         current_cash = dp2(self.cash_value)
+        current_deficit = dp2("0.00")
 
         for idx, age in enumerate(ages):
             # --- Income (annual) ---
@@ -355,33 +418,33 @@ class SettingsState:
                 shortfall = 0.0
 
             # --- Append outputs (rounded where appropriate) ---
-            income_needed.append(round(income, 2))
-            pension_income.append(round(pension, 2))
-            rental_income.append(round(rental_annual, 2))
-            rental1_income.append(round(r1_month, 2))
-            rental2_income.append(round(r2_month, 2))
+            income_needed.append(float(round(income, 2)))
+            pension_income.append(float(round(pension, 2)))
+            rental_income.append(float(round(rental_annual, 2)))
+            rental1_income.append(float(round(r1_month, 2)))
+            rental2_income.append(float(round(r2_month, 2)))
 
-            short.append(round(shortfall, 2))
+            short.append(float(round(shortfall, 2)))
 
-            gia_start.append(round(gia_start_value, 2))
-            gia_take.append(round(gia_take_value, 2))
-            gia_growth.append(round(gia_growth_value, 2))
-            gia_end.append(round(gia_end_value, 2))
+            gia_start.append(float(round(gia_start_value, 2)))
+            gia_take.append(float(round(gia_take_value, 2)))
+            gia_growth.append(float(round(gia_growth_value, 2)))
+            gia_end.append(float(round(gia_end_value, 2)))
 
-            isa_start.append(round(isa_start_value, 2))
-            isa_take.append(round(isa_take_value, 2))
-            isa_growth.append(round(isa_growth_value, 2))
-            isa_end.append(round(isa_end_value, 2))
+            isa_start.append(float(round(isa_start_value, 2)))
+            isa_take.append(float(round(isa_take_value, 2)))
+            isa_growth.append(float(round(isa_growth_value, 2)))
+            isa_end.append(float(round(isa_end_value, 2)))
 
-            sipp_start.append(round(sipp_start_value, 2))
-            sipp_take.append(round(sipp_take_value, 2))
-            sipp_growth.append(round(sipp_growth_value, 2))
-            sipp_end.append(round(sipp_end_value, 2))
+            sipp_start.append(float(round(sipp_start_value, 2)))
+            sipp_take.append(float(round(sipp_take_value, 2)))
+            sipp_growth.append(float(round(sipp_growth_value, 2)))
+            sipp_end.append(float(round(sipp_end_value, 2)))
 
-            cash_start.append(round(cash_start_value, 2))
-            cash_take.append(round(cash_take_value, 2))
-            cash_growth.append(round(cash_growth_value, 2))
-            cash_end.append(round(cash_end_value, 2))
+            cash_start.append(float(round(cash_start_value, 2)))
+            cash_take.append(float(round(cash_take_value, 2)))
+            cash_growth.append(float(round(cash_growth_value, 2)))
+            cash_end.append(float(round(cash_end_value, 2)))
 
 
             # --- Carry forwards ---
@@ -394,10 +457,13 @@ class SettingsState:
             current_isa = isa_end_value
             current_sipp = sipp_end_value
             current_cash = cash_end_value
+            current_deficit = current_deficit - shortfall
+
+            deficit.append(float(round(current_deficit, 2)))
 
         return pd.DataFrame(
             {
-                "Date": dates,
+                "Date": dates.strftime("%Y"),
                 "Age": ages,
                 "Income": income_needed,
                 "Pension": pension_income,
@@ -419,5 +485,6 @@ class SettingsState:
                 "Cash Take": cash_take,
                 "Cash Growth": cash_growth,
                 "Cash End": cash_end,
+                "Deficit": deficit
             }, index=ages,
         )
