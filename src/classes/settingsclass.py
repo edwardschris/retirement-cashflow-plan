@@ -31,7 +31,7 @@ def _age_at_date(birthdate: date, ref_date: date) -> int:
     
 @dataclass
 class SettingsState:
-    dob: date = date(1967, 6, 29)
+    dob: date = date(1966, 5, 10)
     start_age: int | None = None
     end_age: int | None = 95
     plan_start: date | None = None
@@ -39,7 +39,7 @@ class SettingsState:
     state_pension_age: int | None = 67
     state_pension_current_amount: Decimal | None = field(default_factory=lambda: Decimal("11_973"))
     state_pension_annual_increase: Decimal | None = field(default_factory=lambda: Decimal("2.0"))
-    inflation_rate: Decimal | None = field(default_factory=lambda: Decimal("3.0"))
+    inflation_rate: Decimal | None = field(default_factory=lambda: Decimal("2.5"))
 
     dob_changed_event: bool = False
     plan_dates_changed_event: bool = False
@@ -56,35 +56,35 @@ class SettingsState:
     gia_changed_event: bool = False
     sipp_changed_event: bool = False
 
-    monthly_income: Decimal | None = field(default_factory=lambda: Decimal("5_000"))
-    annual_income: Decimal | None = field(default_factory=lambda: Decimal("60_000"))
+    monthly_income: Decimal | None = field(default_factory=lambda: Decimal("3_500"))
+    annual_income: Decimal | None = field(default_factory=lambda: Decimal("42_000"))
 
-    rental1_value: Decimal | None = field(default_factory=lambda: Decimal("421"))
+    rental1_value: Decimal | None = field(default_factory=lambda: Decimal("500"))
     rental1_start: int | None = 58
-    rental1_end: int | None = 59
+    rental1_end: int | None = 95
 
-    rental2_value: Decimal | None = field(default_factory=lambda: Decimal("300"))
+    rental2_value: Decimal | None = field(default_factory=lambda: Decimal("400"))
     rental2_start: int | None = 58
     rental2_end: int | None = 95
     rent_increase: Decimal | None = field(default_factory=lambda: Decimal("2.0"))
 
-    cash_value: Decimal | None = field(default_factory=lambda: Decimal("30_000"))
-    cash_interest: Decimal | None = field(default_factory=lambda: Decimal("2.0"))
+    cash_value: Decimal | None = field(default_factory=lambda: Decimal("25_000"))
+    cash_interest: Decimal | None = field(default_factory=lambda: Decimal("1.5"))
 
-    isa_value: Decimal | None = field(default_factory=lambda: Decimal("200_000"))
-    isa_growth: Decimal | None = field(default_factory=lambda: Decimal("4.0"))
+    isa_value: Decimal | None = field(default_factory=lambda: Decimal("120_000"))
+    isa_growth: Decimal | None = field(default_factory=lambda: Decimal("5.0"))
 
-    gia_value: Decimal | None = field(default_factory=lambda: Decimal("400_000"))
-    gia_growth: Decimal | None = field(default_factory=lambda: Decimal("4.0"))
+    gia_value: Decimal | None = field(default_factory=lambda: Decimal("65_000"))
+    gia_growth: Decimal | None = field(default_factory=lambda: Decimal("5.0"))
 
-    sipp_value: Decimal | None = field(default_factory=lambda: Decimal("500_000"))
-    sipp_growth: Decimal | None = field(default_factory=lambda: Decimal("4.0"))
+    sipp_value: Decimal | None = field(default_factory=lambda: Decimal("305_000"))
+    sipp_growth: Decimal | None = field(default_factory=lambda: Decimal("5.0"))
 
     reducedIncome: pd.DataFrame = field(
         default_factory=lambda: pd.DataFrame(
             {
             "age": [70, 75, 80],
-            "percentage": [10, 25, 40]
+            "percentage": [10, 15, 20]
             }
         )
     )
